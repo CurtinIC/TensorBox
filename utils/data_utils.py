@@ -7,7 +7,7 @@ import sys
 import argparse
 import numpy as np
 import copy
-from . import annolist.AnnotationLib as al
+from .annolist import AnnotationLib as al
 
 def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     region_size = H['region_size']
