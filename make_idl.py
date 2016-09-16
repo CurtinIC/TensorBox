@@ -27,7 +27,7 @@ def removeAllPatches():
         patch.remove()
     patchCache[:] = []
 
-def next(event):  #called when the next button is hit
+def button_clicked(event):  #called when the next button is hit
     global filename
     line = []
     line.append('"' + filename + '": ')
@@ -93,7 +93,7 @@ fig.canvas.mpl_connect('button_press_event', onclick)
 axnext = plt.axes([0.7, 0.01, 0.1, 0.075])
 axclear = plt.axes([0.81, 0.01, 0.1, 0.075])
 bnext = Button(axnext, 'Next')
-bnext.on_clicked(next)
+bnext.on_clicked(button_clicked)
 bclear = Button(axclear, 'Clear')
 bclear.on_clicked(clear)
 plt.show()
