@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 from __future__ import absolute_import
+from builtins import range
 import sys
 import os
 import random
@@ -57,7 +58,7 @@ def main(argv):
 		displayname = filename
 		if (options.ncomponents > 0):
 			suffix = None
-			for idx in xrange(options.ncomponents):
+			for idx in range(options.ncomponents):
 				displayname, last = os.path.split(displayname)
 				if (suffix):
 					suffix = os.path.join(last, suffix)
@@ -65,7 +66,7 @@ def main(argv):
 					suffix = last
 			displayname = suffix
 		if (options.cutcomponents > 0):
-			for idx in xrange(options.cutcomponents):
+			for idx in range(options.cutcomponents):
 				displayname, last = os.path.split(displayname)
 #		plusidx = displayname.index("+")
 #		displayname = displayname[plusidx:]

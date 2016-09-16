@@ -1,4 +1,9 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import zip
+from past.builtins import basestring
+from builtins import object
+from past.utils import old_div
 import numpy as np
 import tensorflow as tf
 
@@ -55,7 +60,7 @@ class Network(object):
                 try:
                     layer = self.layers[layer]
                 except KeyError:
-                    print(self.layers.keys())
+                    print(list(self.layers.keys()))
                     raise KeyError('Unknown layer name fed: %s'%layer)
             self.inputs.append(layer)
         return self
@@ -64,7 +69,7 @@ class Network(object):
         return self.inputs[-1]
 
     def get_unique_name(self, prefix):
-        id = sum(t.startswith(prefix) for t,_ in self.layers.items())+1
+        id = sum(t.startswith(prefix) for t,_ in list(self.layers.items()))+1
         return '%s_%d'%(prefix, id)
 
     def make_var(self, name, shape):
@@ -81,7 +86,7 @@ class Network(object):
         assert c_o%group==0
         convolve = lambda i, k: tf.nn.conv2d(i, k, [1, s_h, s_w, 1], padding=padding)
         with tf.variable_scope(name) as scope:
-            kernel = self.make_var('weights', shape=[k_h, k_w, c_i/group, c_o])
+            kernel = self.make_var('weights', shape=[k_h, k_w, old_div(c_i,group), c_o])
             biases = self.make_var('biases', [c_o])
             if group==1:
                 conv = convolve(input, kernel)

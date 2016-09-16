@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from __future__ import division
+from builtins import str
+from builtins import map
+from builtins import next
+from builtins import zip
+from builtins import range
+from past.utils import old_div
 import json
 import datetime
 import random
@@ -24,7 +31,7 @@ from utils import train_utils, googlenet_load
 
 @ops.RegisterGradient("Hungarian")
 def _hungarian_grad(op, *args):
-    return map(array_ops.zeros_like, op.inputs)
+    return list(map(array_ops.zeros_like, op.inputs))
 
 def build_lstm_inner(H, lstm_input):
     '''
@@ -195,7 +202,7 @@ def build_forward(H, x, googlenet, phase, reuse):
             if phase == 'train':
                 rezoom_features = tf.nn.dropout(rezoom_features, 0.5)
             for k in range(H['rnn_len']):
-                delta_features = tf.concat(1, [lstm_outputs[k], rezoom_features[:, k, :] / 1000.])
+                delta_features = tf.concat(1, [lstm_outputs[k], old_div(rezoom_features[:, k, :], 1000.)])
                 dim = 128
                 delta_weights1 = tf.get_variable(
                                     'delta_ip1%d' % k,
@@ -259,7 +266,7 @@ def build_forward_backward(H, x, googlenet, phase, boxes, flags):
         boxes_loss = tf.reduce_sum(tf.abs(residual)) / outer_size * H['solver']['head_weights'][1]
         if H['use_rezoom']:
             if H['rezoom_change_loss'] == 'center':
-                error = (perm_truth[:, :, 0:2] - pred_boxes[:, :, 0:2]) / tf.maximum(perm_truth[:, :, 2:4], 1.)
+                error = old_div((perm_truth[:, :, 0:2] - pred_boxes[:, :, 0:2]), tf.maximum(perm_truth[:, :, 2:4], 1.))
                 square_error = tf.reduce_sum(tf.square(error), 2)
                 inside = tf.reshape(tf.to_int64(tf.logical_and(tf.less(square_error, 0.2**2), tf.greater(classes, 0))), [-1])
             elif H['rezoom_change_loss'] == 'iou':
@@ -351,7 +358,7 @@ def build(H, q):
                 grads = tf.gradients(loss['train'], tvars)
             else:
                 grads, norm = tf.clip_by_global_norm(tf.gradients(loss['train'], tvars), H['clip_norm'])
-            train_op = opt.apply_gradients(zip(grads, tvars), global_step=global_step)
+            train_op = opt.apply_gradients(list(zip(grads, tvars)), global_step=global_step)
         elif phase == 'test':
             moving_avg = tf.train.ExponentialMovingAverage(0.95)
             smooth_op = moving_avg.apply([accuracy['train'], accuracy['test'],
@@ -386,7 +393,7 @@ def build(H, q):
                                                     rnn_len=H['rnn_len'])[0]
                 
                 num_images = 10
-                img_path = os.path.join(H['save_dir'], '%s_%s.jpg' % ((np_global_step / H['logging']['display_iter']) % num_images, pred_or_true))
+                img_path = os.path.join(H['save_dir'], '%s_%s.jpg' % ((old_div(np_global_step, H['logging']['display_iter'])) % num_images, pred_or_true))
                 misc.imsave(img_path, merged)
                 return merged
 
@@ -472,10 +479,10 @@ def train(H, test_images):
         # train model for N iterations
         start = time.time()
         max_iter = H['solver'].get('max_iter', 10000000)
-        for i in xrange(max_iter):
+        for i in range(max_iter):
             display_iter = H['logging']['display_iter']
             adjusted_lr = (H['solver']['learning_rate'] *
-                           0.5 ** max(0, (i / H['solver']['learning_rate_step']) - 2))
+                           0.5 ** max(0, (old_div(i, H['solver']['learning_rate_step'])) - 2))
             lr_feed = {learning_rate: adjusted_lr}
 
             if i % display_iter != 0:
@@ -484,7 +491,7 @@ def train(H, test_images):
             else:
                 # test network every N iterations; log additional info
                 if i > 0:
-                    dt = (time.time() - start) / (H['batch_size'] * display_iter)
+                    dt = old_div((time.time() - start), (H['batch_size'] * display_iter))
                 start = time.time()
                 (train_loss, test_accuracy, summary_str,
                     _, _) = sess.run([loss['train'], accuracy['test'],

@@ -1,4 +1,5 @@
 from __future__ import absolute_import
+from builtins import range
 import tensorflow as tf
 from .kaffe import mynet
 import os
@@ -70,15 +71,15 @@ def init(H, config=None):
 
     weight_vars = {
         name: tf.Variable(weight, name=name)
-        for name, weight in weights_orig.iteritems()
+        for name, weight in weights_orig.items()
     }
 
     weight_tensors = {
         name: tf.convert_to_tensor(weight)
-        for name, weight in weight_vars.iteritems()
+        for name, weight in weight_vars.items()
     }
 
-    W_norm = [tf.nn.l2_loss(weight) for weight in weight_vars.values() + W]
+    W_norm = [tf.nn.l2_loss(weight) for weight in list(weight_vars.values()) + W]
     W_norm = tf.reduce_sum(tf.pack(W_norm), name='weights_norm')
     tf.scalar_summary(W_norm.op.name, W_norm)
 

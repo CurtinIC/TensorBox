@@ -1,5 +1,8 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import os
 import cv2
 import re
@@ -11,8 +14,8 @@ from .annolist import AnnotationLib as al
 
 def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     region_size = H['region_size']
-    assert H['region_size'] == H['image_height'] / H['grid_height']
-    assert H['region_size'] == H['image_width'] / H['grid_width']
+    assert H['region_size'] == old_div(H['image_height'], H['grid_height'])
+    assert H['region_size'] == old_div(H['image_width'], H['grid_width'])
     cell_regions = get_cell_grid(cell_width, cell_height, region_size)
 
     cells_per_image = len(cell_regions)
@@ -25,14 +28,14 @@ def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     boxes = np.zeros((1, cells_per_image, 4, max_len, 1), dtype = np.float)
     box_flags = np.zeros((1, cells_per_image, 1, max_len, 1), dtype = np.float)
 
-    for cidx in xrange(cells_per_image):
+    for cidx in range(cells_per_image):
         #assert(cur_num_boxes <= max_len)
 
         cell_ox = 0.5 * (cell_regions[cidx].x1 + cell_regions[cidx].x2)
         cell_oy = 0.5 * (cell_regions[cidx].y1 + cell_regions[cidx].y2)
 
         unsorted_boxes = []
-        for bidx in xrange(min(len(box_list[cidx]), max_len)):
+        for bidx in range(min(len(box_list[cidx]), max_len)):
 
             # relative box position with respect to cell
             ox = 0.5 * (box_list[cidx][bidx].x1 + box_list[cidx][bidx].x2) - cell_ox
@@ -54,8 +57,8 @@ def annotation_to_h5(H, a, cell_width, cell_height, max_len):
 def get_cell_grid(cell_width, cell_height, region_size):
 
     cell_regions = []
-    for iy in xrange(cell_height):
-        for ix in xrange(cell_width):
+    for iy in range(cell_height):
+        for ix in range(cell_width):
             cidx = iy * cell_width + ix
             ox = (ix + 0.5) * region_size
             oy = (iy + 0.5) * region_size
@@ -87,10 +90,10 @@ def annotation_jitter(I, a_in, min_box_width=20, jitter_scale_min=0.9, jitter_sc
     if a.rects:
         cur_min_box_width = min([r.width() for r in a.rects])
     else:
-        cur_min_box_width = min_box_width / jitter_scale_min
+        cur_min_box_width = old_div(min_box_width, jitter_scale_min)
 
     # don't downscale below min_box_width 
-    jitter_scale_min = max(jitter_scale_min, float(min_box_width) / cur_min_box_width)
+    jitter_scale_min = max(jitter_scale_min, old_div(float(min_box_width), cur_min_box_width))
 
     # it's always ok to upscale 
     jitter_scale_min = min(jitter_scale_min, 1.0)

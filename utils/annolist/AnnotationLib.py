@@ -1,5 +1,11 @@
 from __future__ import print_function
 from __future__ import absolute_import
+from __future__ import division
+from past.builtins import cmp
+from builtins import str
+from builtins import range
+from past.utils import old_div
+from builtins import object
 import os
 
 from math import sqrt
@@ -208,10 +214,10 @@ class AnnoRect(object):
         return abs(self.y2-self.y1)
 
     def centerX(self):
-        return (self.x1+self.x2)/2.0
+        return old_div((self.x1+self.x2),2.0)
 
     def centerY(self):
-        return (self.y1+self.y2)/2.0
+        return old_div((self.y1+self.y2),2.0)
 
     def left(self):
         return min(self.x1, self.x2)
@@ -230,12 +236,12 @@ class AnnoRect(object):
         if KeepWidth or ((not KeepHeight) and self.width() * 1.0 / self.height() > ratio):
             # extend height
             newHeight = self.width() * 1.0 / ratio
-            self.y1 = (self.centerY() - newHeight / 2.0)
+            self.y1 = (self.centerY() - old_div(newHeight, 2.0))
             self.y2 = (self.y1 + newHeight)
         else:
             # extend width
             newWidth = self.height() * ratio
-            self.x1 = (self.centerX() - newWidth / 2.0)
+            self.x1 = (self.centerX() - old_div(newWidth, 2.0))
             self.x2 = (self.x1 + newWidth)
             
     def clipToImage(self, min_x, max_x, min_y, max_y):
@@ -294,12 +300,12 @@ class AnnoRect(object):
         h = self.height()
         if factor_y is None:
             factor_y = factor
-        centerX = float(self.x1+self.x2)/2.0
-        centerY = float(self.y1+self.y2)/2.0
-        self.x1 = (centerX - (w/2.0)*factor)
-        self.y1 = (centerY - (h/2.0)*factor_y)
-        self.x2 = (centerX + (w/2.0)*factor)
-        self.y2 = (centerY + (h/2.0)*factor_y)
+        centerX = old_div(float(self.x1+self.x2),2.0)
+        centerY = old_div(float(self.y1+self.y2),2.0)
+        self.x1 = (centerX - (old_div(w,2.0))*factor)
+        self.y1 = (centerY - (old_div(h,2.0))*factor_y)
+        self.x2 = (centerX + (old_div(w,2.0))*factor)
+        self.y2 = (centerY + (old_div(h,2.0))*factor_y)
         
 
     def intersection(self, other):
@@ -332,7 +338,7 @@ class AnnoRect(object):
         nWidth = self.width()
         nHeight = self.height()
         iWidth, iHeight = self.intersection(other)              
-        return float(iWidth * iHeight) / float(nWidth * nHeight)
+        return old_div(float(iWidth * iHeight), float(nWidth * nHeight))
 
     def overlap_pascal(self, other):
         self.sortCoords()
@@ -359,7 +365,7 @@ class AnnoRect(object):
         if (aspectRatio!=-1):
             if (fixWH=='fixwidth'):
                 dWidth  = float(self.x2 - self.x1)
-                dHeight = dWidth / aspectRatio
+                dHeight = old_div(dWidth, aspectRatio)
             elif (fixWH=='fixheight'):
                 dHeight = float(self.y2 - self.y1)
                 dWidth  = dHeight * aspectRatio
@@ -367,8 +373,8 @@ class AnnoRect(object):
             dWidth  = float(self.x2 - self.x1)
             dHeight = float(self.y2 - self.y1)
 
-        xdist   = (self.x1 + self.x2 - other.x1 - other.x2) / dWidth
-        ydist   = (self.y1 + self.y2 - other.y1 - other.y2) / dHeight
+        xdist   = old_div((self.x1 + self.x2 - other.x1 - other.x2), dWidth)
+        ydist   = old_div((self.y1 + self.y2 - other.y1 - other.y2), dHeight)
 
         return sqrt(xdist*xdist + ydist*ydist)
 
@@ -549,7 +555,7 @@ class Annotation(object):
     def __getitem__(self, index):
         return self.rects[index]
 
-class detAnnoRect:
+class detAnnoRect(object):
     def __init(self):
         self.imageName = ""
         self.frameNr = -1
@@ -1007,7 +1013,7 @@ def getStats(annotations):
                 widths.append(1)
             else:
                 widths.append(rect.width())
-                if (float(rect.height())/float(rect.width())<1.5):
+                if (old_div(float(rect.height()),float(rect.width()))<1.5):
                     print("Degenerated pedestrian annotation: ", anno.imageName)
 
     ###--- compute average height and variance ---###
@@ -1029,11 +1035,11 @@ def getStats(annotations):
             minHeight = height
 
     if (no>0):
-        avgHeight = avgHeight/no
+        avgHeight = old_div(avgHeight,no)
     for height in heights:
         varHeight += (height-avgHeight)*(height-avgHeight)
     if (no>1):
-        varHeight=float(varHeight)/float(no-1)
+        varHeight=old_div(float(varHeight),float(no-1))
 
     ###--- compute average width and variance ---###
     avgWidth = 0
@@ -1041,12 +1047,12 @@ def getStats(annotations):
     for width in widths:
         avgWidth = avgWidth+width
     if (no>0):
-        avgWidth = avgWidth/no
+        avgWidth = old_div(avgWidth,no)
     for width in widths:
         varWidth += (width-avgWidth)*(width-avgWidth)
 
     if (no>1):
-        varWidth=float(varWidth)/float(no-1)
+        varWidth=old_div(float(varWidth),float(no-1))
 
     ###--- write statistics ---###
     print("  Total # rects:", no)

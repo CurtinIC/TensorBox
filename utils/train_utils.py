@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import numpy as np
 import random
 import json
@@ -13,8 +16,8 @@ from utils.annolist import AnnotationLib as al
 from .rect import Rect
 
 def rescale_boxes(current_shape, anno, target_height, target_width):
-    x_scale = target_width / float(current_shape[1])
-    y_scale = target_height / float(current_shape[0])
+    x_scale = old_div(target_width, float(current_shape[1]))
+    y_scale = old_div(target_height, float(current_shape[0]))
     for r in anno.rects:
         assert r.x1 < r.x2
         r.x1 *= x_scale
@@ -112,8 +115,8 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
         for y in range(H["grid_height"]):
             for x in range(H["grid_width"]):
                 bbox = boxes_r[0, y, x, n, :]
-                abs_cx = int(bbox[0]) + cell_pix_size/2 + cell_pix_size * x
-                abs_cy = int(bbox[1]) + cell_pix_size/2 + cell_pix_size * y
+                abs_cx = int(bbox[0]) + old_div(cell_pix_size,2) + cell_pix_size * x
+                abs_cy = int(bbox[1]) + old_div(cell_pix_size,2) + cell_pix_size * y
                 w = bbox[2]
                 h = bbox[3]
                 conf = np.max(confidences_r[0, y, x, n, 1:])
@@ -132,18 +135,18 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
         for rect in rect_set:
             if rect.confidence > min_conf:
                 cv2.rectangle(image,
-                    (rect.cx-int(rect.width/2), rect.cy-int(rect.height/2)),
-                    (rect.cx+int(rect.width/2), rect.cy+int(rect.height/2)),
+                    (rect.cx-int(old_div(rect.width,2)), rect.cy-int(old_div(rect.height,2))),
+                    (rect.cx+int(old_div(rect.width,2)), rect.cy+int(old_div(rect.height,2))),
                     color,
                     2)
 
     rects = []
     for rect in acc_rects:
         r = al.AnnoRect()
-        r.x1 = rect.cx - rect.width/2.
-        r.x2 = rect.cx + rect.width/2.
-        r.y1 = rect.cy - rect.height/2.
-        r.y2 = rect.cy + rect.height/2.
+        r.x1 = rect.cx - old_div(rect.width,2.)
+        r.x2 = rect.cx + old_div(rect.width,2.)
+        r.y1 = rect.cy - old_div(rect.height,2.)
+        r.y2 = rect.cy + old_div(rect.height,2.)
         r.score = rect.true_confidence
         rects.append(r)
 
@@ -152,10 +155,10 @@ def add_rectangles(H, orig_image, confidences, boxes, use_stitching=False, rnn_l
 def to_x1y1x2y2(box):
     w = tf.maximum(box[:, 2:3], 1)
     h = tf.maximum(box[:, 3:4], 1)
-    x1 = box[:, 0:1] - w / 2
-    x2 = box[:, 0:1] + w / 2
-    y1 = box[:, 1:2] - h / 2
-    y2 = box[:, 1:2] + h / 2
+    x1 = box[:, 0:1] - old_div(w, 2)
+    x2 = box[:, 0:1] + old_div(w, 2)
+    y1 = box[:, 1:2] - old_div(h, 2)
+    y2 = box[:, 1:2] + old_div(h, 2)
     return tf.concat(1, [x1, y1, x2, y2])
 
 def intersection(box1, box2):
@@ -178,7 +181,7 @@ def union(box1, box2):
     return area(box1) + area(box2) - intersection(box1, box2)
 
 def iou(box1, box2):
-    return intersection(box1, box2) / union(box1, box2)
+    return old_div(intersection(box1, box2), union(box1, box2))
 
 def to_idx(vec, w_shape):
     '''
@@ -248,21 +251,21 @@ def bilinear_select(H, pred_boxes, early_feat, early_feat_channels, w_offset, h_
             for j in range(H['grid_width']):
                 for k in range(H['rnn_len']):
                     batch_ids.append([n])
-                    x_offsets.append([coarse_stride / 2. + coarse_stride * j])
-                    y_offsets.append([coarse_stride / 2. + coarse_stride * i])
+                    x_offsets.append([old_div(coarse_stride, 2.) + coarse_stride * j])
+                    y_offsets.append([old_div(coarse_stride, 2.) + coarse_stride * i])
 
     batch_ids = tf.constant(batch_ids)
     x_offsets = tf.constant(x_offsets)
     y_offsets = tf.constant(y_offsets)
 
     pred_boxes_r = tf.reshape(pred_boxes, [outer_size * H['rnn_len'], 4])
-    scale_factor = coarse_stride / fine_stride # scale difference between 15x20 and 60x80 features
+    scale_factor = old_div(coarse_stride, fine_stride) # scale difference between 15x20 and 60x80 features
 
-    pred_x_center = (pred_boxes_r[:, 0:1] + w_offset * pred_boxes_r[:, 2:3] + x_offsets) / fine_stride
+    pred_x_center = old_div((pred_boxes_r[:, 0:1] + w_offset * pred_boxes_r[:, 2:3] + x_offsets), fine_stride)
     pred_x_center_clip = tf.clip_by_value(pred_x_center,
                                      0,
                                      scale_factor * H['grid_width'] - 1)
-    pred_y_center = (pred_boxes_r[:, 1:2] + h_offset * pred_boxes_r[:, 3:4] + y_offsets) / fine_stride
+    pred_y_center = old_div((pred_boxes_r[:, 1:2] + h_offset * pred_boxes_r[:, 3:4] + y_offsets), fine_stride)
     pred_y_center_clip = tf.clip_by_value(pred_y_center,
                                           0,
                                           scale_factor * H['grid_height'] - 1)

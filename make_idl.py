@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import range
 #A tool for hand labelling images
 #Generates an IDL file
 #pass in the directory where you store your images and a filename, then select the points on the images

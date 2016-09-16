@@ -1,4 +1,8 @@
 from __future__ import print_function
+from __future__ import division
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import os
 import sys
 import string
@@ -7,7 +11,7 @@ matplotlib.use('Agg')
 from pylab import *
 import numpy as np
 
-class MatPlotter:
+class MatPlotter(object):
 	fontsize=15
 	color=0
 	colors=["r-", "b-", "k-", "c-", "m-", "y-"]
@@ -185,9 +189,9 @@ class MatPlotter:
 					self.eer = self.rec[-1]
 
 			#Remove already passed precision
-			if (len(precScores) > 0 and (float(vals[0])) < precScores[0] / 100.0):
+			if (len(precScores) > 0 and (float(vals[0])) < old_div(precScores[0], 100.0)):
 				precinfo.append("%d percent precision score: %f, recall: %.03f" % (precScores[0], float(vals[2]), float(vals[1])))
-				while(len(precScores) > 0 and precScores[0]/100.0 > float(vals[0])):
+				while(len(precScores) > 0 and old_div(precScores[0],100.0) > float(vals[0])):
 					precScores.pop(0)
 					
 			#Remove already passed precision
@@ -228,7 +232,7 @@ class MatPlotter:
 			for i in logAvInfo:
 				print(i);
 			self.lamr =  self.lamr * 1.0 / lamrcount
-			print("Log average miss rate in [10^%.01f, 10^0]: %.03f" % (lowest_fppi / 10.0, self.lamr ))
+			print("Log average miss rate in [10^%.01f, 10^0]: %.03f" % (old_div(lowest_fppi, 10.0), self.lamr ))
 	
 		
 		
@@ -407,12 +411,12 @@ class MatPlotter:
 		lax = axlimits[0]
 		for i in self.fppi:
 			if(i != m):				
-				lax = math.floor(log(i)/math.log(10))
+				lax = math.floor(old_div(log(i),math.log(10)))
 				leftlabel = math.pow(10, lax)				 
 				break
 			
 		m = max(self.fppi)
-		rightlabel = math.pow(10, math.ceil(log(m)/math.log(10))) + 0.01				 
+		rightlabel = math.pow(10, math.ceil(old_div(log(m),math.log(10)))) + 0.01				 
 				
 		k = leftlabel
 		ticks = [k]
