@@ -11,7 +11,6 @@ import json
 import datetime
 import random
 import time
-import string
 import argparse
 import os
 from scipy import misc
@@ -498,13 +497,13 @@ def train(H, test_images):
                                       summary_op, train_op, smooth_op,
                                      ], feed_dict=lr_feed)
                 writer.add_summary(summary_str, global_step=global_step.eval())
-                print_str = string.join([
+                print_str = ', '.join([
                     'Step: %d',
                     'lr: %f',
                     'Train Loss: %.2f',
                     'Test Accuracy: %.1f%%',
                     'Time/image (ms): %.1f'
-                ], ', ')
+                ])
                 print(print_str %
                       (i, adjusted_lr, train_loss,
                        test_accuracy * 100, dt * 1000 if i > 0 else 0))
