@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import cv2
 import re
@@ -5,7 +7,7 @@ import sys
 import argparse
 import numpy as np
 import copy
-import annolist.AnnotationLib as al
+from . import annolist.AnnotationLib as al
 
 def annotation_to_h5(H, a, cell_width, cell_height, max_len):
     region_size = H['region_size']

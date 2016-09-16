@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import json
 import datetime
 import random
@@ -453,7 +454,7 @@ def train(H, test_images):
         for phase in ['train', 'test']:
             # enqueue once manually to avoid thread start delay
             gen = train_utils.load_data_gen(H, phase, jitter=H['solver']['use_jitter'])
-            d = gen.next()
+            d = next(gen)
             sess.run(enqueue_op[phase], feed_dict=make_feed(d))
             t = tf.train.threading.Thread(target=thread_loop,
                                           args=(sess, enqueue_op, phase, gen))

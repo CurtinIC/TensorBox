@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
 import sys
 import os
 import random
 import re
-from AnnotationLib import *
-from MatPlotter import *
+from .AnnotationLib import *
+from .MatPlotter import *
 from optparse import OptionParser
 from copy import deepcopy
 from math import sqrt
@@ -67,7 +69,7 @@ def main(argv):
 				displayname, last = os.path.split(displayname)
 #		plusidx = displayname.index("+")
 #		displayname = displayname[plusidx:]
-		print "Plotting: "+displayname
+		print("Plotting: "+displayname)
 		if (options.fppw):
 			plotter.plotFPPW(filename, displayname)
 		elif (options.lfppi):

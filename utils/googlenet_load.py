@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import tensorflow as tf
-from kaffe import mynet
+from .kaffe import mynet
 import os
 import numpy as np
 

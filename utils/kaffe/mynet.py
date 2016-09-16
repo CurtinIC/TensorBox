@@ -1,4 +1,5 @@
-from network import Network
+from __future__ import absolute_import
+from .network import Network
 
 class VGG(Network):
     def setup(self):

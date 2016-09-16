@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+from __future__ import absolute_import
 import os, sys
-from AnnotationLib import *
+from .AnnotationLib import *
 from optparse import OptionParser
 import copy
 import math
@@ -330,11 +332,11 @@ def comp_prec_recall_all_params(annoIDL, detIDL, ignoreIDL, minWidth=0, minHeigh
 
 	# Asort detections which are too small/too big
         if verbose: 
-                print "Asorting too large/ too small detections"
-                print "minWidth:", minWidth
-                print "minHeight:", minHeight
-                print "maxWidth: ", maxWidth
-                print "maxHeight: ", maxHeight
+                print("Asorting too large/ too small detections")
+                print("minWidth:", minWidth)
+                print("minHeight:", minHeight)
+                print("maxWidth: ", maxWidth)
+                print("maxHeight: ", maxHeight)
 
 	asort(annoIDL, detIDL, minWidth, minHeight, matchingStyle, minCover, minOverlap, maxDistance, maxWidth, maxHeight)
 	
@@ -352,10 +354,10 @@ def comp_prec_recall_all_params(annoIDL, detIDL, ignoreIDL, minWidth=0, minHeigh
 					break
 
         if verbose:
-                print "#Annotations:", noAnnotations
+                print("#Annotations:", noAnnotations)
 	
                 ###--- set up graphs ---###
-                print "Setting up graphs ..."
+                print("Setting up graphs ...")
 
 	graphs = []
 	allRects = []
@@ -372,7 +374,7 @@ def comp_prec_recall_all_params(annoIDL, detIDL, ignoreIDL, minWidth=0, minHeigh
                                 break
 							
 		if(not imageFound):
-			print "No annotation/detection pair found for: " + annoIDL[i].imageName + " frame: " + str(annoIDL[i].frameNr)
+			print("No annotation/detection pair found for: " + annoIDL[i].imageName + " frame: " + str(annoIDL[i].frameNr))
 			missingFrames += 1
 			continue;
 				
@@ -388,18 +390,18 @@ def comp_prec_recall_all_params(annoIDL, detIDL, ignoreIDL, minWidth=0, minHeigh
 			allRects.append(newRect)	
 	
         if verbose: 
-                print "missingFrames: ", missingFrames
-                print "Number of detections on annotated frames: " , len(allRects)
+                print("missingFrames: ", missingFrames)
+                print("Number of detections on annotated frames: " , len(allRects))
 	
                 ###--- get scores from all rects ---###
-                print "Sorting scores ..."
+                print("Sorting scores ...")
 
 	allRects.sort(cmpDetAnnoRectsByScore)
 	allRects.reverse()
 
 	###--- gradually decrease score ---###
         if verbose: 
-                print "Gradually decrease score ..."
+                print("Gradually decrease score ...")
 
 	lastScore = float('infinity')
 	
@@ -504,7 +506,7 @@ def main():
 	(options, args) = parser.parse_args()
 	
 	if (len(args) < 2):
-		print "Please specify annotation and detection as arguments!"
+		print("Please specify annotation and detection as arguments!")
 		parser.print_help()
 		sys.exit(1)
 	
@@ -516,7 +518,7 @@ def main():
 	maxWidth =  options.maxWidth
 	maxHeight = options.maxHeight
 		
-	print "Minimum width: %d height: %d" % (minWidth, minHeight)
+	print("Minimum width: %d height: %d" % (minWidth, minHeight))
 	
 	# Load files	
 	annoIDL = parse(annoFile)	
@@ -578,7 +580,7 @@ def main():
 			min_y = 0
 			max_y = options.clipHeight
 			
-		print "Clipping width: (%.02f-%.02f); clipping height: (%.02f-%.02f)" % (min_x, max_x, min_y, max_y)
+		print("Clipping width: (%.02f-%.02f); clipping height: (%.02f-%.02f)" % (min_x, max_x, min_y, max_y))
 		for anno in annoIDL:
 			for rect in anno:
 				rect.clipToImage(min_x, max_x, min_y, max_y)
@@ -598,11 +600,11 @@ def main():
 		matchingStyle = 0
 		
 	if (options.pascalStyle and options.leibeStyle):
-		print "Conflicting matching styles!"
+		print("Conflicting matching styles!")
 		sys.exit(1)
 		
 	if (options.dropFirst == True):
-		print "Drop first frame of each sequence..."
+		print("Drop first frame of each sequence...")
 		newIDL = []
 		for i, anno in enumerate(detIDL):
 			if (i > 1 and detIDL[i].frameNr == detIDL[i-1].frameNr + 1 and detIDL[i].frameNr == detIDL[i-2].frameNr + 2 and  detIDL[i].frameNr == detIDL[i-3].frameNr + 3  and detIDL[i].frameNr == detIDL[i-4].frameNr + 4):
@@ -628,7 +630,7 @@ def main():
 
                 outfilename = outputDir + "/rpc-" + base + "_overlap" + str(options.minOverlap) + ".txt"
 
-	print "saving:\n" + outfilename;
+	print("saving:\n" + outfilename);
 
 	file = open(outfilename, 'w')
 	for i in xrange(len(precs)):

@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 
@@ -54,7 +55,7 @@ class Network(object):
                 try:
                     layer = self.layers[layer]
                 except KeyError:
-                    print self.layers.keys()
+                    print(self.layers.keys())
                     raise KeyError('Unknown layer name fed: %s'%layer)
             self.inputs.append(layer)
         return self

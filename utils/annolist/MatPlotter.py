@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import string
@@ -166,7 +167,7 @@ class MatPlotter:
 					self.lamr = 1 - float(vals[1])
 					
 					lowest_fppi = math.ceil( math.log(float(vals[3]))/ math.log(10) * 10 )  
-					print "lowest_fppi: ",lowest_fppi;
+					print("lowest_fppi: ",lowest_fppi);
 
 					# MA: temporarily commented out 
 					# for i in range(lowest_fppi, 1, 1):						
@@ -213,25 +214,25 @@ class MatPlotter:
 				lamrcount += 1
 		
 		for i in precinfo:
-			print i;
-		print;
+			print(i);
+		print();
 		for i in fppiinfo:
-			print i;
-		print
+			print(i);
+		print()
 		for i in eerinfo:
-			print i;
-		print
-		print "Recall at first false positive: %.03f" % self.rec[0]
+			print(i);
+		print()
+		print("Recall at first false positive: %.03f" % self.rec[0])
 		if(len(vals)>3):
-			print
+			print()
 			for i in logAvInfo:
-				print i;
+				print(i);
 			self.lamr =  self.lamr * 1.0 / lamrcount
-			print "Log average miss rate in [10^%.01f, 10^0]: %.03f" % (lowest_fppi / 10.0, self.lamr )
+			print("Log average miss rate in [10^%.01f, 10^0]: %.03f" % (lowest_fppi / 10.0, self.lamr ))
 	
 		
 		
-		print; print
+		print(); print()
 		file.close()
 
 	def loadFreqData(self, fname):
@@ -285,11 +286,11 @@ class MatPlotter:
 		else:
 			self.finishFreqPlot()			
 		
-		print "Saving: " + filename		
+		print("Saving: " + filename)		
 		savefig(filename)
 
 	def plotRFP(self, numImages, fname, line="r-"):
-		print 'NOT YET IMPLEMENTED'
+		print('NOT YET IMPLEMENTED')
 
 	def plotRPC(self, fname, descr="line", style="-1", axlimits = [0,1.0,0,1.0], linewidth = 2, dashstyle = [], addEER = False ):
 		self.loadRPCData(fname)
